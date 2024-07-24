@@ -1,12 +1,12 @@
 import time
 from renogymodbus import RenogyChargeController
-
-from Blynk import *
+from notification_manager import NotificationManager
+from api import *
 
 
 class ChargeController:
-    def __init__(self, blynk, nm):
-        self.blynk = blynk
+    def __init__(self, api, nm):
+        self.api = api
         self.nm = nm
         self.COM_port = "/dev/ttyUSB0"
         
@@ -23,16 +23,6 @@ class ChargeController:
         self.create_controller_data()
 
         self.controller_efficiency = 0.94
-
-        self.blynk_pins = {
-            'solar_voltage': [47,54,61],
-            'solar_current': [48,55,62],
-            'solar_power': [49,56,63],
-            'battery_voltage': [50,57,64],
-            'battery_current': [51,58,65],
-            'state_of_charge': [52,59,66],
-            'controller_temperature': [53,60,67]
-        }
 
         self.solar_data = {
             'battery_current': 0,
@@ -87,25 +77,22 @@ class ChargeController:
             sum += controller['battery_voltage']
         return round(sum/3, 3)
 
-    def send_to_Blynk(self):
-        # blynk.virtual_write_batch()
+    def send_to_api(self):
+
         # need to write individual solar controller values
         try:
-            pin_list = []
-            value_list = []
             for i in range(3):
-                for prop in self.blynk_pins.keys():
-                    pin_list.append(self.blynk_pins[prop][i])
-                    value_list.append(self.controllers[i][prop])
-            
-            # need to combine data
-            self.calc_combined_solar_data()
-            pin_list.extend([68,69,70,71])
-            value_list.extend([self.solar_data['solar_current'], self.solar_data['solar_power'], self.solar_data['battery_current'], self.solar_data['battery_voltage']])
-            self.blynk.virtual_write_batch(pin_list, value_list)
-            
+                # set_solar_params(solar_id, voltage, current, power, battery_voltage, battery_current, state_of_charge, controller_temp)
+                self.api.set_solar_params(i, self.controllers[i]['solar_voltage'], self.controllers[i]['solar_current'], self.controllers[i]['solar_power'], self.controllers[i]['battery_voltage'], self.controllers[i]['battery_current'], self.controllers[i]['state_of_charge'], self.controllers[i]['controller_temperature'])
+
+            # send combined data
+            self.api.set_val("solar_battery_current", self.solar_data['battery_current'])
+            self.api.set_val("solar_battery_voltage", self.solar_data['battery_voltage'])
+            self.api.set_val("solar_current", self.solar_data['solar_current'])
+            self.api.set_val("solar_power", self.solar_data['solar_power'])
         except Exception as e:
-            print(e)
+            print(f"Exception in send_to_api: {e}")
+
 
     def run(self):
         while True:
@@ -129,7 +116,7 @@ class ChargeController:
                         self.read_timer = t
 
                 if (t - self.send_timer) >= self.send_interval:
-                    self.send_to_Blynk()
+                    self.send_to_api()
                     self.send_timer = t
             except Exception as e:
                 # pass
@@ -174,8 +161,8 @@ class ChargeController:
 
 
 if __name__ == "__main__":
-    blynk = Blynk()
-
-    controller = ChargeController(blynk)
+    api = API()
+    nm = NotificationManager()
+    controller = ChargeController(api, nm)
     while True:
         controller.run()

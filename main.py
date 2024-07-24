@@ -7,28 +7,28 @@ nm = NotificationManager()
 # from influxDB import InfluxDB
 # db = InfluxDB()
 
-# from Blynk import Blynk
-# blynk = Blynk(db, False)
+from api import API
+api = API()
 
-from bms import BMS
-bms = BMS(blynk, nm)
+# from bms import BMS
+# bms = BMS(blynk, nm)
 
 from solar import ChargeController
-solar = ChargeController(blynk, nm)
+solar = ChargeController(api, nm)
 
 # from automation import Automation
 # automation = Automation(blynk, bms, solar, nm)
 
 threads = []
-threads_alive = [1, 1, 1, 1]
+threads_alive = [1, 1]
 
 
 def restartThreads(i):
 	print(f"Restarting {threads[i].name}")
 	if threads[i].name == "Blynk":
 		threads[i] = threading.Thread(target=blynk.run, name="Blynk")
-	elif threads[i].name == "BMS":
-		threads[i] = threading.Thread(target=bms.run, name="BMS")
+	# elif threads[i].name == "BMS":
+	# 	threads[i] = threading.Thread(target=bms.run, name="BMS")
 	elif threads[i].name == "Solar":
 		threads[i] = threading.Thread(target=solar.run, name="Solar")
 	# elif threads[i].name == "Automation":
@@ -45,8 +45,8 @@ def restartThreads(i):
 
 
 if __name__ == '__main__':
-	threads.append(threading.Thread(target=blynk.run, name="Blynk"))
-	threads.append(threading.Thread(target=bms.run, name="BMS"))
+	threads.append(threading.Thread(target=api.run, name="Blynk"))
+	# threads.append(threading.Thread(target=bms.run, name="BMS"))
 	threads.append(threading.Thread(target=solar.run, name="Solar"))
 	# threads.append(threading.Thread(target=automation.run, name="Automation"))
 

@@ -5,7 +5,7 @@ class API:
   def __init__(self):
     self.read_interval = 1000
     self.read_timer = 0
-    self.url = "http://192.168.8.148"
+    self.url = "http://192.168.8.146:8000"
     
     self.datastreams = {}
     

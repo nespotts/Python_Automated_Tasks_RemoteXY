@@ -25,8 +25,8 @@ threads_alive = [1, 1]
 
 def restartThreads(i):
 	print(f"Restarting {threads[i].name}")
-	if threads[i].name == "Blynk":
-		threads[i] = threading.Thread(target=blynk.run, name="Blynk")
+	if threads[i].name == "API":
+		threads[i] = threading.Thread(target=api.run, name="API")
 	# elif threads[i].name == "BMS":
 	# 	threads[i] = threading.Thread(target=bms.run, name="BMS")
 	elif threads[i].name == "Solar":
@@ -45,7 +45,7 @@ def restartThreads(i):
 
 
 if __name__ == '__main__':
-	threads.append(threading.Thread(target=api.run, name="Blynk"))
+	threads.append(threading.Thread(target=api.run, name="API"))
 	# threads.append(threading.Thread(target=bms.run, name="BMS"))
 	threads.append(threading.Thread(target=solar.run, name="Solar"))
 	# threads.append(threading.Thread(target=automation.run, name="Automation"))

@@ -83,13 +83,14 @@ class ChargeController:
         try:
             for i in range(3):
                 # set_solar_params(solar_id, voltage, current, power, battery_voltage, battery_current, state_of_charge, controller_temp)
-                self.api.set_solar_params(i, self.controllers[i]['solar_voltage'], self.controllers[i]['solar_current'], self.controllers[i]['solar_power'], self.controllers[i]['battery_voltage'], self.controllers[i]['battery_current'], self.controllers[i]['state_of_charge'], self.controllers[i]['controller_temperature'])
+                self.api.set_solar_params(i+1, self.controllers[i]['solar_voltage'], self.controllers[i]['solar_current'], self.controllers[i]['solar_power'], self.controllers[i]['battery_voltage'], self.controllers[i]['battery_current'], self.controllers[i]['state_of_charge'], self.controllers[i]['controller_temperature'])
 
             # send combined data
-            self.api.set_val("solar_battery_current", self.solar_data['battery_current'])
-            self.api.set_val("solar_battery_voltage", self.solar_data['battery_voltage'])
-            self.api.set_val("solar_current", self.solar_data['solar_current'])
-            self.api.set_val("solar_power", self.solar_data['solar_power'])
+            self.calc_combined_solar_data()
+            self.api.set_value("solar_battery_current", self.solar_data['battery_current'])
+            self.api.set_value("solar_battery_voltage", self.solar_data['battery_voltage'])
+            self.api.set_value("solar_current", self.solar_data['solar_current'])
+            self.api.set_value("solar_power", self.solar_data['solar_power'])
         except Exception as e:
             print(f"Exception in send_to_api: {e}")
 

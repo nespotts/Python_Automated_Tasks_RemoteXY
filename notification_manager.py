@@ -1,20 +1,27 @@
 # https://www.youtube.com/watch?v=g_j6ILT-X0k
 from email.message import EmailMessage
+from email.utils import formataddr
 import smtplib
+from api import API
 
 class NotificationManager:
     #This class is responsible for sending notifications with the deal flight details.
-    def __init__(self):
+    def __init__(self, api):
+        self.api = api
         self.sender = 'nspotts7@gmail.com'
+        self.recipient = self.api.get_value("notification_email")
         self.app_password = "qwqv iybb gdlm jdnz"
         
     def send_message(self, msg: str, trigger: str=False):
       # for backwards compatibility
       self.send_email(msg=msg)
       
-    def send_email(self, msg:str, subject:str="Automated Email", recipient:str="nathan_spotts@hotmail.com", is_html:bool=False):
+    def send_email(self, msg:str, subject:str="Automated Email", recipient:str="", is_html:bool=False):
         em = EmailMessage()
-        em['From'] = self.sender
+        em['From'] = formataddr(("RV Automation", self.sender))
+        if recipient == "":
+            self.recipient = self.api.get_value("notification_email")
+            recipient = self.recipient
         em['To'] = recipient
         em['Subject'] = subject
         # print(em.get_default_type())
@@ -34,7 +41,8 @@ class NotificationManager:
             
              
 if __name__ == "__main__":
-    nm = NotificationManager()
+    api = API()
+    nm = NotificationManager(api)
     
     # sample html email
     html = '''
@@ -75,7 +83,9 @@ if __name__ == "__main__":
     </html>
     '''
     
+    
+        
     # sample plain text email
     text = "Test Text"
     
-    nm.send_email(html, "Email Subject", "nathan_spotts@hotmail.com", is_html=True)
+    nm.send_email(html, "Email Subject", "", True)

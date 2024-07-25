@@ -1,23 +1,14 @@
 import threading
 import time
 
-from notification_manager import NotificationManager
-nm = NotificationManager()
-
-# from influxDB import InfluxDB
-# db = InfluxDB()
-
 from api import API
 api = API()
 
-# from bms import BMS
-# bms = BMS(blynk, nm)
+from notification_manager import NotificationManager
+nm = NotificationManager(api)
 
 from solar import ChargeController
 solar = ChargeController(api, nm)
-
-# from automation import Automation
-# automation = Automation(blynk, bms, solar, nm)
 
 threads = []
 threads_alive = [1, 1]

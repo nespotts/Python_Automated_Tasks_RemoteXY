@@ -8,6 +8,7 @@ class API:
     self.url = "http://192.168.8.146:8000"
     
     self.datastreams = {}
+    self.get_all_data()
     
   def get_all_data(self):
     url = f"{self.url}/get_all"
